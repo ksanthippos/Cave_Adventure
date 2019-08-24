@@ -306,7 +306,19 @@ public class GameLogic {
 
     // set up player
     private void initPlayer() {
+
         player = new Player(10, 0, 0, true, currentX, currentY, "Mikael", 1, 0, 0, false);
+        // players surroundings are set visible
+        blocks[currentX + 1][currentY].setVisible();
+        blocks[currentX - 1][currentY].setVisible();
+        blocks[currentX][currentY + 1].setVisible();
+        blocks[currentX][currentY - 1].setVisible();
+        blocks[currentX + 1][currentY + 1].setVisible();
+        blocks[currentX + 1][currentY - 1].setVisible();
+        blocks[currentX - 1][currentY + 1].setVisible();
+        blocks[currentX - 1][currentY - 1].setVisible();
+
+
     }
 
 
@@ -344,6 +356,7 @@ public class GameLogic {
         player.setX(currentX);
         player.setY(currentY);
 
+        // set players char to new position
         map[currentX][currentY] = 'S';
         map[previousX][previousY] = 'C';
 

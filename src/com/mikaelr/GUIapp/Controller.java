@@ -31,10 +31,6 @@ public class Controller {
     private Label infoArmor;
 
     private ChoiceBox<Item> inventoryList;
-/*    private ChoiceBox weaponList;
-    private ChoiceBox armorList;
-    private ChoiceBox spellList;*/
-
 
     private Button fight;
     private Button flee;
@@ -121,6 +117,7 @@ public class Controller {
         mapView.setPadding(new Insets(15));
         tileMap.setStyle("-fx-background-color: black");    // dungeon floor
 
+
         // player stats: name, health, XP etc
         GridPane playerStatsView = new GridPane();
         playerStatsView.setPadding(new Insets(15));
@@ -142,7 +139,6 @@ public class Controller {
         infoXP = new Label(String.valueOf(logic.getPlayer().getXP()));
         infoPoisoned = new Label(String.valueOf(logic.getPlayer().isPoisoned()));
         infoLevel = new Label(String.valueOf(logic.getPlayer().getLevel()));
-
 
         playerStatsView.add(lblName, 0,0,1,1);
         playerStatsView.add(infoName, 1,0,1,1);
@@ -174,7 +170,6 @@ public class Controller {
         infoArmor = new Label("(none)");
         inventoryList = new ChoiceBox<>();
         inventoryList.setPrefWidth(100);
-
 
         listView.add(lblInv, 0, 0, 1,1);
         listView.add(inventoryList, 1, 0, 1,1);
@@ -408,7 +403,7 @@ public class Controller {
                 println("There's no one to fight here..");
             }
         });
-        
+
         // FLEE NEEDS TO CHECK IF PLAYER DIES!
         flee.setOnAction(e -> {
             if (logic.isCombatActivated()) {
@@ -417,7 +412,7 @@ public class Controller {
                 int hit = logic.activatedEnemy().getAP();
                 if (random.nextInt(2) > 0) {
                     logic.getPlayer().takeHit(Math.abs(logic.getPlayer().getDP() - hit));
-                    println("Enemy strikes you in the back before you escape! You get " + hit + " damage.");
+                    println("Enemy strikes you in the back before you escape! You lose " + hit + " HP.");
                     if (!logic.getPlayer().isAlive()) {
                         logic.setGameOver();
                         println(logic.gameOver());
@@ -467,13 +462,13 @@ public class Controller {
 
                 if (usable.getItemClass().equals("potion")) {
                     if (usable.getType().equals(ItemType.HEALING_POTION)) {
-                        println("*GULP* What a wonderful taste.. the taste of life!");
-                        println("You gain " + usable.getPotion() + " HP.");
+                        println("*GULP* The taste of life!");
+                        println("You gain +" + usable.getPotion() + " HP.");
                         logic.getPlayer().setHP(logic.getPlayer().getHP() + usable.getPotion());
                     }
                     else if (usable.getType().equals(ItemType.MANA_POTION)) {
                         println("*GULP* You feel the magic flowing into your heart and veins!");
-                        println("You gain " + usable.getPotion() + " MP.");
+                        println("You gain +" + usable.getPotion() + " MP.");
                         logic.getPlayer().setMP(logic.getPlayer().getMP() + usable.getPotion());
                     }
 
@@ -503,6 +498,7 @@ public class Controller {
                         }
 
                         logic.getPlayer().getInventory().remove(usable);
+                        logic.getPlayer().setMP(-usable.getSpell());
                         updateStats();
                     }
 
@@ -535,6 +531,8 @@ public class Controller {
                             }
                             logic.getPlayer().equipItem(type);
                             infoWeapon.setText(choice.toString());
+                            println("You gain +" + choice.getWeapon() + " AP.");
+                            updateStats();
                         }
                         else if (choice.getItemClass().equals("armor")) {
                             if (type.equals(ItemType.CHAINMAIL_ARMOR)) {
@@ -545,6 +543,8 @@ public class Controller {
                             }
                             logic.getPlayer().equipItem(type);
                             infoArmor.setText(choice.toString());
+                            println("You gain +" + choice.getArmor() + " DP.");
+                            updateStats();
                         }
                         else {
                             println("You cannot equip " + choice.toString() + ".");
@@ -570,96 +570,90 @@ public class Controller {
                 groundTile.setFitWidth(32);
                 groundTile.setFitHeight(32);
 
-                // walls and corridors
-                if (mapID == '#') {
-                    groundTile.setImage(wall);
+                ImageView itemTile = new ImageView();
+                itemTile.setFitWidth(32);
+                itemTile.setFitHeight(32);
+                itemTile.setScaleX(0.5);    // items scaled smaller
+                itemTile.setScaleY(0.5);
+
+                ImageView enemyTile = new ImageView();
+                enemyTile.setFitWidth(32);
+                enemyTile.setFitHeight(32);
+
+                if (logic.getBlocks()[i][j].isVisible()) {
+
+                    // walls and corridors
+                    if (mapID == '#') {
+                        groundTile.setImage(wall);
+                    } else if (mapID == 'C' || !logic.getBlocks()[i][j].hasEnemies()) {   // empty also when enemies = dead
+                        groundTile.setImage(empty);
+                    }
+
+                    tileMap.add(groundTile, i, j);
+
+                    // items
+                    if (logic.getBlocks()[i][j].hasItems()) {
+
+                        if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.HEALING_POTION)) {
+                            itemTile.setImage(hpotion);
+                        } else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.MANA_POTION)) {
+                            itemTile.setImage(mpotion);
+                        } else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.MANA_POTION)) {
+                            itemTile.setImage(mpotion);
+                        } else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.SHORT_SWORD)) {
+                            itemTile.setImage(ssword);
+                        } else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.BATTLE_AXE)) {
+                            itemTile.setImage(baxe);
+                        } else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.CHAINMAIL_ARMOR)) {
+                            itemTile.setImage(chainmail);
+                        } else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.KNIGHT_ARMOR)) {
+                            itemTile.setImage(karmor);
+                        } else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.HEALING_SPELL)) {
+                            itemTile.setImage(hspell);
+                        } else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.LIGHTNING_BOLT)) {
+                            itemTile.setImage(lspell);
+                        }
+
+                        tileMap.add(itemTile, i, j);
+                    }
+
+                    // enemies
+                    if (logic.getBlocks()[i][j].hasEnemies()) {
+
+                        if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.RAT)) {
+                            enemyTile.setScaleX(0.6);
+                            enemyTile.setScaleY(0.6);
+                            enemyTile.setImage(rat);
+                        } else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.SNAKE)) {
+                            enemyTile.setScaleX(0.6);
+                            enemyTile.setScaleY(0.6);
+                            enemyTile.setImage(snake);
+                        } else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.GOBLIN)) {
+                            enemyTile.setScaleX(0.7);
+                            enemyTile.setScaleY(0.7);
+                            enemyTile.setImage(goblin);
+                        } else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.ORC)) {
+                            enemyTile.setScaleX(0.8);
+                            enemyTile.setScaleY(0.8);
+                            enemyTile.setImage(orc);
+                        } else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.CAVE_TROLL)) {
+                            enemyTile.setImage(troll);
+                            enemyTile.setScaleX(0.9);
+                            enemyTile.setScaleY(0.9);
+                        } else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.DRAGON)) {
+                            enemyTile.setImage(dragon);
+                        }
+                        tileMap.add(enemyTile, i, j);
+                    }
                 }
-                else if (mapID == 'C' || !logic.getBlocks()[i][j].hasEnemies()) {   // empty also when enemies = dead
+
+                // block not visible yet
+                else {
                     groundTile.setImage(empty);
+                    tileMap.add(groundTile, i, j);
                 }
 
-                tileMap.add(groundTile, i, j);
-
-                // items
-                if (logic.getBlocks()[i][j].hasItems()) {
-
-                    ImageView itemTile = new ImageView();
-                    itemTile.setFitWidth(32);
-                    itemTile.setFitHeight(32);
-                    itemTile.setScaleX(0.5);    // items scaled smaller
-                    itemTile.setScaleY(0.5);
-
-                    if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.HEALING_POTION)) {
-                        itemTile.setImage(hpotion);
-                    }
-                    else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.MANA_POTION)) {
-                        itemTile.setImage(mpotion);
-                    }
-                    else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.MANA_POTION)) {
-                        itemTile.setImage(mpotion);
-                    }
-                    else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.SHORT_SWORD)) {
-                        itemTile.setImage(ssword);
-                    }
-                    else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.BATTLE_AXE)) {
-                        itemTile.setImage(baxe);
-                    }
-                    else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.CHAINMAIL_ARMOR)) {
-                        itemTile.setImage(chainmail);
-                    }
-                    else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.KNIGHT_ARMOR)) {
-                        itemTile.setImage(karmor);
-                    }
-                    else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.HEALING_SPELL)) {
-                        itemTile.setImage(hspell);
-                    }
-                    else if (logic.getBlocks()[i][j].getItems().get(0).getType().equals(ItemType.LIGHTNING_BOLT)) {
-                        itemTile.setImage(lspell);
-                    }
-
-                    tileMap.add(itemTile, i, j);
-                }
-
-                // enemies
-                if (logic.getBlocks()[i][j].hasEnemies()) {
-
-                    ImageView enemyTile = new ImageView();
-                    enemyTile.setFitWidth(32);
-                    enemyTile.setFitHeight(32);
-
-
-                    if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.RAT)) {
-                        enemyTile.setScaleX(0.6);
-                        enemyTile.setScaleY(0.6);
-                        enemyTile.setImage(rat);
-                    }
-                    else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.SNAKE)) {
-                        enemyTile.setScaleX(0.6);
-                        enemyTile.setScaleY(0.6);
-                        enemyTile.setImage(snake);
-                    }
-                    else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.GOBLIN)) {
-                        enemyTile.setScaleX(0.7);
-                        enemyTile.setScaleY(0.7);
-                        enemyTile.setImage(goblin);
-                    }
-                    else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.ORC)) {
-                        enemyTile.setScaleX(0.8);
-                        enemyTile.setScaleY(0.8);
-                        enemyTile.setImage(orc);
-                    }
-                    else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.CAVE_TROLL)) {
-                        enemyTile.setImage(troll);
-                        enemyTile.setScaleX(0.9);
-                        enemyTile.setScaleY(0.9);
-                    }
-                    else if (logic.getBlocks()[i][j].getEnemies().get(0).getType().equals(EnemyType.DRAGON)) {
-                        enemyTile.setImage(dragon);
-                    }
-                    tileMap.add(enemyTile, i, j);
-                }
-
-                // player image last, so it sits on top of items
+                // player image last, so it always sits on top of items
                 if (mapID == 'S' && logic.getPlayer().isAlive()) {
                     ImageView playerTile = new ImageView(hero);
                     playerTile.setFitWidth(32);
@@ -667,6 +661,11 @@ public class Controller {
                     playerTile.setScaleX(0.8);
                     playerTile.setScaleY(0.8);
                     tileMap.add(playerTile, i, j);
+                    logic.getBlocks()[i - 1][j].setVisible();
+                    logic.getBlocks()[i + 1][j].setVisible();
+                    logic.getBlocks()[i][j + 1].setVisible();
+                    logic.getBlocks()[i][j - 1].setVisible();
+
                 }
                 else if (mapID == 'S' && !logic.getPlayer().isAlive()) {
                     ImageView deadTile = new ImageView(bones);
@@ -715,46 +714,10 @@ public class Controller {
             inventoryList.getItems().add(n);
             inventoryList.setValue(n);
         }
-
-/*        weaponList.getItems().clear();
-        weaponList.getItems().add("(none)");
-        for (Item e: logic.getPlayer().getInventory()) {
-            if (e.getItemClass().equals("weapon")) {
-                weaponList.getItems().add(e.toString());
-            }
-        }
-
-        armorList.getItems().clear();
-        armorList.getItems().add("(none)");
-        for (Item e: logic.getPlayer().getInventory()) {
-            if (e.getItemClass().equals("armor")) {
-                armorList.getItems().add(e.toString());
-            }
-        }
-
-        spellList.getItems().clear();
-        spellList.getItems().add("(none)");
-        for (Item e: logic.getPlayer().getInventory()) {
-            if (e.getItemClass().equals("spell")) {
-                spellList.getItems().add(e.toString());
-            }
-        }*/
-
-
-
     }
-
 
     // text output is handled by this method
     private void println(String text) {
-
-     // combat text style red, but maybe activate combat buttons instead?
-        if (logic.isCombatActivated()) {
-            output.setStyle("-fx-control-inner-background:#000000; -fx-font-family: Consolas; -fx-font-size: 12; -fx-text-fill: red");
-        }
-        else {
-            output.setStyle("-fx-control-inner-background:#000000; -fx-font-family: Consolas; -fx-font-size: 12;-fx-text-fill: yellow");
-        }
 
         output.appendText(text + "\n");
         output.setScrollLeft(0);

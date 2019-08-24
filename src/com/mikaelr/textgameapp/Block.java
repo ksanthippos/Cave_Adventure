@@ -14,6 +14,7 @@ public class Block {
     private boolean isCorridor;
     private boolean isWall;
     private boolean hasItems = false;
+    private boolean isVisible = false;
 
     private List<Item> items;
     private List<Enemy> enemies;
@@ -37,6 +38,8 @@ public class Block {
         return y;
     }
 
+    public boolean isVisible() { return isVisible; }
+
     public void setPlayerStart() { isPlayerStart = true; }
 
     public void setWall() {
@@ -46,6 +49,8 @@ public class Block {
     public void setCorridor() {
         isCorridor = true;
     }
+
+    public void setVisible() { isVisible = true; }
 
     public void setRoom() {
         isRoom = true;
