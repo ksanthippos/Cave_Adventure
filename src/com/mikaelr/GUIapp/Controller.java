@@ -27,18 +27,21 @@ public class Controller {
     private Label infoXP;
     private Label infoPoisoned;
     private Label infoLevel;
+    private Label infoWeapon;
+    private Label infoArmor;
 
     private ChoiceBox<Item> inventoryList;
-    private ChoiceBox weaponList;
+/*    private ChoiceBox weaponList;
     private ChoiceBox armorList;
-    private ChoiceBox spellList;
+    private ChoiceBox spellList;*/
+
 
     private Button fight;
     private Button flee;
     private Button use;
     private Button look;
     private Button take;
-    private Button help;
+    private Button equip;
     private Button north;
     private Button south;
     private Button east;
@@ -159,7 +162,7 @@ public class Controller {
         playerStatsView.add(infoLevel, 1,7,1,1);
 
 
-        // inventory and equip choiceboxes
+        // inventory and equip-infos
         GridPane listView = new GridPane();
         listView.setPadding(new Insets(15));
         listView.setVgap(10);
@@ -167,29 +170,19 @@ public class Controller {
         Label lblInv = new Label("Inventory:");
         Label lblEqW = new Label("Equipped weapon:");
         Label lblEqA = new Label("Equipped armor:");
-        Label lblEqS = new Label("Armed spell:");
+        infoWeapon = new Label("(none)");
+        infoArmor = new Label("(none)");
         inventoryList = new ChoiceBox<>();
-
-        weaponList = new ChoiceBox();
-
-        armorList = new ChoiceBox();
-        spellList = new ChoiceBox();
-        weaponList.getItems().addAll("(none)");
-        armorList.getItems().addAll("(none)");
-        spellList.getItems().addAll("(none)");
         inventoryList.setPrefWidth(100);
-        weaponList.setPrefWidth(100);
-        armorList.setPrefWidth(100);
-        spellList.setPrefWidth(100);
+
 
         listView.add(lblInv, 0, 0, 1,1);
         listView.add(inventoryList, 1, 0, 1,1);
         listView.add(lblEqW, 0, 1, 1,1);
-        listView.add(weaponList, 1, 1, 1,1);
+        listView.add(infoWeapon, 1, 1, 1,1);
         listView.add(lblEqA, 0, 2, 1,1);
-        listView.add(armorList, 1, 2, 1,1);
-        listView.add(lblEqS, 0, 3, 1,1);
-        listView.add(spellList, 1, 3, 1,1);
+        listView.add(infoArmor, 1, 2, 1,1);
+
 
         // UI top: stats + lists
         HBox UItop = new HBox();
@@ -221,22 +214,22 @@ public class Controller {
         VBox actionControls1 = new VBox();
         fight = new Button("Fight");
         flee = new Button("Flee");
-        use = new Button("Use");
+        look = new Button("Look");
         fight.setPrefSize(50, 30);
         flee.setPrefSize(50,30);
-        use.setPrefSize(50,30);
-        actionControls1.getChildren().addAll(fight, flee, use);
+        look.setPrefSize(50,30);
+        actionControls1.getChildren().addAll(fight, flee, look);
         actionControls1.setSpacing(15);
         actionControls1.setPadding(new Insets(10));
 
         VBox actionControls2 = new VBox();
-        look = new Button("Look");
+        use = new Button("Use");
         take = new Button("Take");
-        help = new Button("Help");  // smt else here, maybe DROP? help suits better to the upper menu
-        look.setPrefSize(50, 30);
+        equip = new Button("Equip");
+        use.setPrefSize(50, 30);
         take.setPrefSize(50, 30);
-        help.setPrefSize(50, 30);
-        actionControls2.getChildren().addAll(look, take, help);
+        equip.setPrefSize(50, 30);
+        actionControls2.getChildren().addAll(take, use, equip);
         actionControls2.setPrefSize(100, 30);
         actionControls2.setSpacing(15);
         actionControls2.setPadding(new Insets(10));
@@ -295,15 +288,13 @@ public class Controller {
                 else if(key.getCode() == KeyCode.T) {
                     take.fire();
                 }
-                // **************
-                // TEST USE ONLY
+                // equip
                 else if(key.getCode() == KeyCode.E) {
-                    println("Item equipped!");
-                    logic.getPlayer().equipItem(ItemType.SHORT_SWORD);
+                    equip.fire();
                 }
-                // help
-                else if(key.getCode() == KeyCode.H) {
-                    help.fire();
+                // use
+                else if (key.getCode() == KeyCode.U) {
+                    use.fire();
                 }
                 // look around
                 else if(key.getCode() == KeyCode.L) {
@@ -327,9 +318,12 @@ public class Controller {
                 else if(key.getCode() == KeyCode.F) {
                     flee.fire();
                 }
-                // help also available in combat
-                else if(key.getCode() == KeyCode.H) {
-                    help.fire();
+                // equip and use also available in combat
+                else if(key.getCode() == KeyCode.E) {
+                    equip.fire();
+                }
+                else if (key.getCode() == KeyCode.U) {
+                    use.fire();
                 }
             }
 
@@ -414,6 +408,8 @@ public class Controller {
                 println("There's no one to fight here..");
             }
         });
+        
+        // FLEE NEEDS TO CHECK IF PLAYER DIES!
         flee.setOnAction(e -> {
             if (logic.isCombatActivated()) {
                 // player has 50% chance of getting hit before escaping
@@ -422,9 +418,18 @@ public class Controller {
                 if (random.nextInt(2) > 0) {
                     logic.getPlayer().takeHit(Math.abs(logic.getPlayer().getDP() - hit));
                     println("Enemy strikes you in the back before you escape! You get " + hit + " damage.");
-                    logic.setCombatActivated(false);
-                    println("COMBAT MODE DEACTIVATED");
-                    println("*********");
+                    if (!logic.getPlayer().isAlive()) {
+                        logic.setGameOver();
+                        println(logic.gameOver());
+                        // disable all input
+                        root.addEventFilter(KeyEvent.ANY, KeyEvent::consume);
+                        UIwhole.setDisable(true);
+                    }
+                    else {
+                        logic.setCombatActivated(false);
+                        println("COMBAT MODE DEACTIVATED");
+                        println("*********");
+                    }
                 }
                 else {
                     println("Enemy fails to hit and you manage to escape unharmed!");
@@ -447,18 +452,6 @@ public class Controller {
             else {
                 println("Nothing you can take.");
             }
-        });
-
-        // THIS MAYBE TO MSG BOX / ALERT?
-        help.setOnAction(e -> {
-            println("Keyboard commands:");
-            println("Movement: WASD (north, west, south, east)");
-            println("Look: L");
-            println("Help: H");
-            println("Inventory: I");
-            println("Player stats: P");
-            println("Fight: X");
-            println("Flee: F");
         });
 
         // choiceboxes
@@ -517,10 +510,47 @@ public class Controller {
                         println("Not enough mana for spell casting.");
                     }
                 }
+                else {
+                    println("You cannot use this item.");
+                }
             }
         });
 
-        // actions for weapon and armor lists
+        equip.setOnAction(e -> {
+
+                    Item choice = inventoryList.getValue();
+                    ItemType type = choice.getType();
+
+                    if (choice.toString().equals("nothing")) {
+                        println("Nothign to equip!");
+                    }
+                    else {
+
+                        if (choice.getItemClass().equals("weapon")) {
+                            if (type.equals(ItemType.SHORT_SWORD)) {
+                                println("You are now armed with a short sword. Better than nothing!");
+                            }
+                            else if (type.equals(ItemType.BATTLE_AXE)) {
+                                println("You arm yourself with a two-bladed battle axe! Heads will roll with this one.");
+                            }
+                            logic.getPlayer().equipItem(type);
+                            infoWeapon.setText(choice.toString());
+                        }
+                        else if (choice.getItemClass().equals("armor")) {
+                            if (type.equals(ItemType.CHAINMAIL_ARMOR)) {
+                                println("You put a chainmail armor on. This will give you some protection.");
+                            }
+                            if (type.equals(ItemType.KNIGHT_ARMOR)) {
+                                println("You put on a full knight armor! Not so easy to kill anymore.");
+                            }
+                            logic.getPlayer().equipItem(type);
+                            infoArmor.setText(choice.toString());
+                        }
+                        else {
+                            println("You cannot equip " + choice.toString() + ".");
+                        }
+                    }
+        });
 
         
         mapView.setCenter(tileMap);
