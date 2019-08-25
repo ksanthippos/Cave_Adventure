@@ -103,7 +103,7 @@ public class Controller {
 
         // ..and the adventure begins!
         println("Welcome to the Grand Cave Adventure, good luck to you, " + logic.getPlayer().getName() + "!");
-        println("Try to look around (L):");
+        println("You can start with looking around (L).");
 
     }
 

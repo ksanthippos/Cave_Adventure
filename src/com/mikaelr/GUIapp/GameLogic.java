@@ -77,10 +77,6 @@ public class GameLogic {
         return player;
     }
 
-    public int getTurns() {
-        return turns;
-    }
-
     public Enemy activatedEnemy() {
 
         for (Enemy e: enemies) {

@@ -8,7 +8,6 @@ public class Block {
 
     private int x;
     private int y;
-    private int roomID;
     private boolean isPlayerStart;
     private boolean isCorridor;
     private boolean isWall;
@@ -50,10 +49,6 @@ public class Block {
     }
 
     public void setVisible() { isVisible = true; }
-
-    public void setRoomID(int ID) { roomID = ID;}
-
-    public int getRoomID() { return roomID; }
 
     public boolean hasEnemies() {
 
