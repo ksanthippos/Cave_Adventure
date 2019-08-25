@@ -18,6 +18,8 @@ public class Controller {
     private GameLogic logic;
     private TextArea output;
     private GridPane tileMap;
+    private char mapID;
+    private int tileSize;
 
     private Label infoName;
     private Label infoHP;
@@ -69,9 +71,10 @@ public class Controller {
     // game initialization
     public Controller() {
 
-        // two main components, need to be instantiated here
+        // map components
         this.tileMap = new GridPane();
         this.output = new TextArea();
+        this.tileSize = 24;
 
         // map assets
         this.wall = new Image("com/mikaelr/assets/map/wall.png");
@@ -322,10 +325,6 @@ public class Controller {
                 }
             }
 
-            // map and stats updated
-            updateMap();
-            updateStats();
-
         });
 
         // ************
@@ -334,6 +333,7 @@ public class Controller {
         north.setOnAction(e -> {
             if (!logic.isCombatActivated()) {
                 println(logic.movePlayer(0, -1));
+                //updateMap();
                 updateMap();
                 updateStats();
             }
@@ -344,6 +344,7 @@ public class Controller {
         south.setOnAction(e -> {
             if (!logic.isCombatActivated()) {
                 println(logic.movePlayer(0, 1));
+                //updateMap();
                 updateMap();
                 updateStats();
             }
@@ -354,6 +355,7 @@ public class Controller {
         east.setOnAction(e -> {
             if (!logic.isCombatActivated()) {
                 println(logic.movePlayer(1, 0));
+                //updateMap();
                 updateMap();
                 updateStats();
             }
@@ -364,6 +366,7 @@ public class Controller {
         west.setOnAction(e -> {
             if (!logic.isCombatActivated()) {
                 println(logic.movePlayer(-1, 0));
+                //updateMap();
                 updateMap();
                 updateStats();
             }
@@ -569,21 +572,21 @@ public class Controller {
         for (int i = 0; i < logic.getMapSizeX(); i++) {
             for (int j = 0; j < logic.getMapSizeY(); j++) {
 
-                char mapID = logic.getMap()[i][j];
+                mapID = logic.getMap()[i][j];
 
                 ImageView groundTile = new ImageView();
-                groundTile.setFitWidth(32);
-                groundTile.setFitHeight(32);
+                groundTile.setFitWidth(tileSize);
+                groundTile.setFitHeight(tileSize);
 
                 ImageView itemTile = new ImageView();
-                itemTile.setFitWidth(32);
-                itemTile.setFitHeight(32);
+                itemTile.setFitWidth(tileSize);
+                itemTile.setFitHeight(tileSize);
                 itemTile.setScaleX(0.5);    // items scaled smaller
                 itemTile.setScaleY(0.5);
 
                 ImageView enemyTile = new ImageView();
-                enemyTile.setFitWidth(32);
-                enemyTile.setFitHeight(32);
+                enemyTile.setFitWidth(tileSize);
+                enemyTile.setFitHeight(tileSize);
 
                 if (logic.getBlocks()[i][j].isVisible()) {
 
@@ -661,8 +664,8 @@ public class Controller {
                 // player image last, so it always sits on top of items
                 if (mapID == 'S' && logic.getPlayer().isAlive()) {
                     ImageView playerTile = new ImageView(hero);
-                    playerTile.setFitWidth(32);
-                    playerTile.setFitHeight(32);
+                    playerTile.setFitWidth(tileSize);
+                    playerTile.setFitHeight(tileSize);
                     playerTile.setScaleX(0.8);
                     playerTile.setScaleY(0.8);
                     tileMap.add(playerTile, i, j);
@@ -670,19 +673,52 @@ public class Controller {
                     logic.getBlocks()[i + 1][j].setVisible();
                     logic.getBlocks()[i][j + 1].setVisible();
                     logic.getBlocks()[i][j - 1].setVisible();
-
                 }
+
                 else if (mapID == 'S' && !logic.getPlayer().isAlive()) {
                     ImageView deadTile = new ImageView(bones);
-                    deadTile.setFitWidth(32);
-                    deadTile.setFitHeight(32);
+                    deadTile.setFitWidth(tileSize);
+                    deadTile.setFitHeight(tileSize);
                     deadTile.setScaleX(0.8);
                     deadTile.setScaleY(0.8);
                     tileMap.add(deadTile, i , j);
+
                 }
+
             }
         }
     }
+
+    /*private void updatePlayerSurroundinds() {
+
+        int x = logic.getPlayer().getX();
+        int y = logic.getPlayer().getY();
+        mapID = logic.getMap()[x][y];
+
+        if (mapID == 'S' && logic.getPlayer().isAlive()) {
+            ImageView playerTile = new ImageView(hero);
+            playerTile.setFitWidth(32);
+            playerTile.setFitHeight(32);
+            playerTile.setScaleX(0.8);
+            playerTile.setScaleY(0.8);
+            tileMap.add(playerTile, x, y);
+        }
+
+        else if (mapID == 'S' && !logic.getPlayer().isAlive()) {
+            ImageView deadTile = new ImageView(bones);
+            deadTile.setFitWidth(32);
+            deadTile.setFitHeight(32);
+            deadTile.setScaleX(0.8);
+            deadTile.setScaleY(0.8);
+            tileMap.add(deadTile, x , y);
+        }
+
+        logic.getBlocks()[x - 1][y].setVisible();
+        logic.getBlocks()[x + 1][y].setVisible();
+        logic.getBlocks()[x][y + 1].setVisible();
+        logic.getBlocks()[x][y - 1].setVisible();
+
+    }*/
 
     private void updateStats() {
 
