@@ -1,4 +1,4 @@
-package com.mikaelr.textgameapp;
+package com.mikaelr.classes;
 
 import java.util.Random;
 

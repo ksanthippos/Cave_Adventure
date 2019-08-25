@@ -1,4 +1,4 @@
-package com.mikaelr.textgameapp;
+package com.mikaelr.classes;
 
 
 public class Item {
@@ -19,7 +19,7 @@ public class Item {
         if (type.equals(ItemType.SHORT_SWORD)) {
             this.name = "short sword";
             this.itemClass = "weapon";
-            this.weapon = 2;
+            this.weapon = 3;
         }
         else if (type.equals(ItemType.BATTLE_AXE)) {
             this.name = "battle axe";

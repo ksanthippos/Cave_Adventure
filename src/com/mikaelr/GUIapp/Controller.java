@@ -1,6 +1,6 @@
 package com.mikaelr.GUIapp;
 
-import com.mikaelr.textgameapp.*;
+import com.mikaelr.classes.*;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -103,7 +103,7 @@ public class Controller {
 
         // ..and the adventure begins!
         println("Welcome to the Grand Cave Adventure, good luck to you, " + logic.getPlayer().getName() + "!");
-        println("Maybe you should start looking around you?");
+        println("Try to look around (L):");
 
     }
 
@@ -268,7 +268,7 @@ public class Controller {
         // keyboard input(key press fires button event)
         root.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
 
-            // combat NOT active
+            // combat not active
             if (!logic.isCombatActivated()) {
                 if (key.getCode() == KeyCode.W) {
                     north.fire();
@@ -300,7 +300,7 @@ public class Controller {
                 }
             }
 
-            // combat IS active
+            // combat is active
             else {
                 if (key.getCode() == KeyCode.W || key.getCode() == KeyCode.A || key.getCode() == KeyCode.S || key.getCode() == KeyCode.D) {
                     println("Cannot move normally in a combat! Choose to fight (x) or flee (f).");
@@ -403,13 +403,13 @@ public class Controller {
                 println("There's no one to fight here..");
             }
         });
-
-        // FLEE NEEDS TO CHECK IF PLAYER DIES!
         flee.setOnAction(e -> {
             if (logic.isCombatActivated()) {
                 // player has 50% chance of getting hit before escaping
                 Random random = new Random();
                 int hit = logic.activatedEnemy().getAP();
+                println("You try to flee;");
+
                 if (random.nextInt(2) > 0) {
                     logic.getPlayer().takeHit(Math.abs(logic.getPlayer().getDP() - hit));
                     println("Enemy strikes you in the back before you escape! You lose " + hit + " HP.");
@@ -450,7 +450,6 @@ public class Controller {
         });
 
         // choiceboxes
-
         use.setOnAction(e -> {
 
             Item usable = inventoryList.getValue();
@@ -483,6 +482,12 @@ public class Controller {
                         if (usable.getType().equals(ItemType.HEALING_SPELL)) {
                             println("You gain " + usable.getSpell() + " HP.");
                             logic.getPlayer().setHP(usable.getSpell());
+
+                            // heals poisoning
+                            if (logic.getPlayer().isPoisoned()) {
+                                println("Spell also heals you from poisoning!");
+                                logic.getPlayer().setPoisoned(false);
+                            }
                         }
                         else if (usable.getType().equals(ItemType.LIGHTNING_BOLT)) {
                             if (logic.isCombatActivated()) {
@@ -531,7 +536,7 @@ public class Controller {
                             }
                             logic.getPlayer().equipItem(type);
                             infoWeapon.setText(choice.toString());
-                            println("You gain +" + choice.getWeapon() + " AP.");
+                            println("Now you have " + choice.getWeapon() + " AP.");
                             updateStats();
                         }
                         else if (choice.getItemClass().equals("armor")) {
@@ -539,11 +544,11 @@ public class Controller {
                                 println("You put a chainmail armor on. This will give you some protection.");
                             }
                             if (type.equals(ItemType.KNIGHT_ARMOR)) {
-                                println("You put on a full knight armor! Not so easy to kill anymore.");
+                                println("You put on a full knight armor! You are covered in steel from head to heels.");
                             }
                             logic.getPlayer().equipItem(type);
                             infoArmor.setText(choice.toString());
-                            println("You gain +" + choice.getArmor() + " DP.");
+                            println("Now you have " + choice.getArmor() + " DP.");
                             updateStats();
                         }
                         else {
@@ -693,6 +698,7 @@ public class Controller {
         infoDP.setText(String.valueOf(logic.getPlayer().getDP()));
         infoMP.setText(String.valueOf(logic.getPlayer().getMP()));
         infoXP.setText(String.valueOf(logic.getPlayer().getXP()));
+
         if (logic.getPlayer().isPoisoned()) {
             infoPoisoned.setText("Yes");
         }

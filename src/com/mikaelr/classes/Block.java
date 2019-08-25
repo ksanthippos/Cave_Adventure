@@ -1,4 +1,4 @@
-package com.mikaelr.textgameapp;
+package com.mikaelr.classes;
 
 
 import java.util.ArrayList;
@@ -10,7 +10,6 @@ public class Block {
     private int y;
     private int roomID;
     private boolean isPlayerStart;
-    private boolean isRoom;
     private boolean isCorridor;
     private boolean isWall;
     private boolean hasItems = false;
@@ -52,10 +51,6 @@ public class Block {
 
     public void setVisible() { isVisible = true; }
 
-    public void setRoom() {
-        isRoom = true;
-    }
-
     public void setRoomID(int ID) { roomID = ID;}
 
     public int getRoomID() { return roomID; }
@@ -76,8 +71,6 @@ public class Block {
     public boolean isPlayerStart() { return isPlayerStart; }
 
     public boolean isCorridor() { return isCorridor; }
-
-    public boolean isRoom() { return isRoom; }
 
     public boolean isWall() { return isWall; }
 

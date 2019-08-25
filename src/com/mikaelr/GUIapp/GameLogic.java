@@ -1,6 +1,6 @@
 package com.mikaelr.GUIapp;
 
-import com.mikaelr.textgameapp.*;
+import com.mikaelr.classes.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,20 +18,10 @@ public class GameLogic {
     private int mapSizeY;
     private Block[][] blocks;
     private char[][] map;
-    private ArrayList<Item> roomItems;
-    private ArrayList<Item> corridorItems;
 
-    /*
-    * maybe just:
-    private ArrayList items
-    *
-    * in graphic environment there's no need for corridor/room-separation,
-    * rats and snakes spawn everywhere (minus those locations already spawned by bigger enemies)
-    *
-    * */
-
-    private ArrayList<Enemy> ratsnake;
+    private ArrayList<Item> items;
     private ArrayList<Enemy> enemies;
+
     private Player player;
     private int turns;
     private boolean combatActivated;
@@ -43,26 +33,24 @@ public class GameLogic {
         this.mapSizeX = 12;
         this.mapSizeY = 12;
         this.blocks = new Block[mapSizeX][mapSizeY];
-        this.roomItems = new ArrayList<>();
-        this.corridorItems = new ArrayList<>();
-        this.ratsnake = new ArrayList<>();
+        this.items = new ArrayList<>();
         this.enemies = new ArrayList<>();
-
 
         this.map = new char[][]{
                 {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
-                {'#', '1', 'C', 'C', '#', 'S', '#', 'C', '#', '#', '5', '#'},
+                {'#', '2', 'C', 'C', '#', 'S', '#', 'C', '#', '#', '2', '#'},
                 {'#', 'C', '#', 'C', '#', 'C', '#', 'C', 'C', 'C', 'C', '#'},
-                {'#', 'C', 'C', '0', 'C', 'C', '#', 'C', '#', '#', 'C', '#'},
-                {'#', '#', 'C', '#', '#', 'C', 'C', '3', '#', '#', 'C', '#'},
-                {'#', 'C', '2', 'C', '#', '#', '#', '#', '#', 'C', 'C', '#'},
-                {'#', '#', 'C', '#', '#', 'C', 'C', 'C', '6', 'C', '#', '#'},
-                {'#', 'C', 'C', '#', 'C', 'C', '#', '#', '#', '#', '#', '#'},
-                {'#', 'C', '#', '#', 'C', '#', '7', '#', 'C', '8', 'C', '#'},
-                {'#', 'C', '4', '#', 'C', 'C', 'C', 'C', 'C', '#', 'C', '#'},
-                {'#', '#', '#', '#', '#', '#', '#', '#', '#', '9', 'C', '#'},
+                {'#', 'C', 'C', 'C', '1', 'C', '#', 'C', '#', '#', 'C', '#'},
+                {'#', '#', 'C', '#', '#', 'C', 'C', '1', '#', '#', 'C', '#'},
+                {'#', 'C', '2', 'C', '#', '#', '#', '#', '#', 'C', '1', '#'},
+                {'#', '#', 'C', '#', '#', 'C', 'C', 'C', '3', 'C', '#', '#'},
+                {'#', '1', 'C', '#', 'C', 'C', '#', '#', '#', '#', '#', '#'},
+                {'#', 'C', '#', '#', '4', '#', 'C', '#', 'C', '4', 'C', '#'},
+                {'#', 'C', '3', '#', 'C', 'C', 'C', 'C', 'C', '#', 'C', '#'},
+                {'#', '#', '#', '#', '#', '#', '#', '#', '#', '5', 'C', '#'},
                 {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}
         };
+
     }
 
     // public getters
@@ -83,39 +71,7 @@ public class GameLogic {
         return map;
     }
 
-    public int getCurrentX() {
-        return currentX;
-    }
-
-    public int getCurrentY() {
-        return currentY;
-    }
-
-    public int getPreviousX() {
-        return previousX;
-    }
-
-    public int getPreviousY() {
-        return previousY;
-    }
-
     public boolean isCombatActivated() { return combatActivated; }
-
-    public ArrayList<Item> getRoomItems() {
-        return roomItems;
-    }
-
-    public ArrayList<Item> getCorridorItems() {
-        return corridorItems;
-    }
-
-    public ArrayList<Enemy> getRatsnake() {
-        return ratsnake;
-    }
-
-    public ArrayList<Enemy> getEnemies() {
-        return enemies;
-    }
 
     public Player getPlayer() {
         return player;
@@ -123,10 +79,6 @@ public class GameLogic {
 
     public int getTurns() {
         return turns;
-    }
-
-    public boolean isGameOver() {
-        return gameOver;
     }
 
     public Enemy activatedEnemy() {
@@ -176,80 +128,38 @@ public class GameLogic {
         this.combatActivated = false;
         this.gameOver = false;
         initItems();
-        initEnemies();
         initBlocks();
         initPlayer();
-
-
-        // TEST
-        // kills all the rats and snakes
-        ratsnake.stream().forEach(e -> e.takeHit(10));
-
-        // MAYBE all the snakes and rats into same enemies list with the others?
 
     }
 
 
     private void initItems(){
-        // 8
-        roomItems.add(new Item(ItemType.BATTLE_AXE));
-        roomItems.add(new Item(ItemType.CHAINMAIL_ARMOR));
-        roomItems.add(new Item(ItemType.KNIGHT_ARMOR));
-        roomItems.add(new Item(ItemType.HEALING_SPELL));
-        roomItems.add(new Item(ItemType.LIGHTNING_BOLT));
-        roomItems.add(new Item(ItemType.HEALING_POTION));
-        roomItems.add(new Item(ItemType.MANA_POTION));
-        roomItems.add(new Item(ItemType.SILVER));
-        roomItems.add(new Item(ItemType.GOLD));
 
-        // 8
-        corridorItems.add(new Item(ItemType.HEALING_POTION));
-        corridorItems.add(new Item(ItemType.HEALING_POTION));
-        corridorItems.add(new Item(ItemType.HEALING_POTION));
-        corridorItems.add(new Item(ItemType.MANA_POTION));
-        corridorItems.add(new Item(ItemType.MANA_POTION));
-        corridorItems.add(new Item(ItemType.MANA_POTION));
-        corridorItems.add(new Item(ItemType.HEALING_SPELL));
-        corridorItems.add(new Item(ItemType.LIGHTNING_BOLT));
+        items.add(new Item(ItemType.BATTLE_AXE));
+        items.add(new Item(ItemType.CHAINMAIL_ARMOR));
+        items.add(new Item(ItemType.KNIGHT_ARMOR));
+        items.add(new Item(ItemType.HEALING_SPELL));
+        items.add(new Item(ItemType.LIGHTNING_BOLT));
+        items.add(new Item(ItemType.MANA_POTION));
+        items.add(new Item(ItemType.HEALING_POTION));
+        items.add(new Item(ItemType.HEALING_POTION));
+        items.add(new Item(ItemType.HEALING_POTION));
+        items.add(new Item(ItemType.MANA_POTION));
+        items.add(new Item(ItemType.MANA_POTION));
+        items.add(new Item(ItemType.MANA_POTION));
+        items.add(new Item(ItemType.HEALING_SPELL));
+        items.add(new Item(ItemType.LIGHTNING_BOLT));
 
-        Collections.shuffle(roomItems);
-        Collections.shuffle(corridorItems);
-    }
+        Collections.shuffle(items);
 
-    private void initEnemies() {
-        // enemies generated in two lists: first for rats and snakes (corridors), the second for bigger enemies (rooms)
-        // last one (dragon) --> spawns at dragon room
-
-        for (int i = 0; i < 6; i++) {
-            ratsnake.add(new Enemy(2, 0, 1, true, 0, 0, EnemyType.RAT, false,6));
-        }
-        for (int i = 0; i < 4; i++) {
-            ratsnake.add(new Enemy(3, 0, 1, true, 0, 0, EnemyType.SNAKE, true, 6));
-        }
-
-        enemies.add(new Enemy(2, 0, 1, true, 0, 0, EnemyType.RAT, false,6));
-
-        for (int i = 0; i < 4; i++) {
-            enemies.add(new Enemy(4, 1, 2, true, 0, 0, EnemyType.GOBLIN, false,5));
-        }
-        for (int i = 0; i < 3; i++) {
-            enemies.add(new Enemy(8, 2, 4, true, 0, 0, EnemyType.ORC, false,10));
-        }
-        for (int i = 0; i < 2; i++) {
-            enemies.add(new Enemy(14, 4, 7, true, 0, 0, EnemyType.CAVE_TROLL, false,20));
-        }
-
-        enemies.add(new Enemy(20, 6, 10, true, 0, 0, EnemyType.DRAGON, false,50));
-
-        Collections.shuffle(ratsnake);  // spawned with 60/40 - chance
     }
 
     private void initBlocks() {
 
         Random random = new Random();
-        int rsCounter = 0;
-        int ciCounter = 0;
-        int roomID = 0;
+        int itemCounter = 0;
+        int corridorID = 0;
 
         for (int i = 0; i < mapSizeX; i++) {
             for (int j = 0; j < mapSizeY; j++) {
@@ -262,7 +172,9 @@ public class GameLogic {
                     currentX = i;
                     currentY = j;
                     blocks[i][j].setPlayerStart();
-                    blocks[i][j].addItem(new Item(ItemType.SHORT_SWORD));   // starting item
+                    // starting items
+                    blocks[i][j].addItem(new Item(ItemType.HEALING_POTION));
+                    blocks[i][j].addItem(new Item(ItemType.SHORT_SWORD));
                 }
                 // wall
                 else if (mapID == '#') {
@@ -272,33 +184,102 @@ public class GameLogic {
                 else if (mapID == 'C') {
                     blocks[i][j].setCorridor();
 
-                    if (rsCounter < 10) {
-                        blocks[i][j].addEnemy(ratsnake.get(rsCounter), i, j);
-                        rsCounter++;
-                    }
-                    if (ciCounter < 8 && random.nextInt(2) > 0) {
-                        blocks[i][j].addItem(corridorItems.get(ciCounter));
-                        ciCounter++;
+                    // 20 % chance of finding items
+                    if (itemCounter < 14 && random.nextInt(5) > 3) {
+                        blocks[i][j].addItem(items.get(itemCounter));
+                        itemCounter++;
                     }
                 }
-                // room
-                else {
-                    roomID = Character.getNumericValue(mapID);
-                    blocks[i][j].setRoom();
-                    blocks[i][j].setRoomID(roomID);
 
-                    // rooms 0 - 9
-                    if (roomID < 9) {
-                        blocks[i][j].addItem(roomItems.get(roomID));
-                        blocks[i][j].addEnemy(enemies.get(roomID), i , j);
+                // enemies
+                else {
+                    corridorID = Character.getNumericValue(mapID);  // convert char value from map to int
+                    blocks[i][j].setCorridor();
+
+                    // ID = 1 --> 60% chance: rat, 40% chance: snake
+                    if (corridorID == 1) {
+                        if (random.nextInt(5) > 2) {
+                            Enemy rat = new Enemy(2, 0, 1, true, 0, 0, EnemyType.RAT, false, 6);
+                            enemies.add(rat);
+                            blocks[i][j].addEnemy(rat, i, j);
+                        }
+                        else {
+                            Enemy snake = new Enemy(3, 0, 1, true, 0, 0, EnemyType.SNAKE, true, 8);
+                            enemies.add(snake);
+                            blocks[i][j].addEnemy(snake, i, j);
+                        }
+
+                        // 60% chance of finding items
+                        if (itemCounter < 14 && random.nextInt(5) > 1) {
+                            blocks[i][j].addItem(items.get(itemCounter));
+                            itemCounter++;
+                        }
                     }
-                    // room 9 (dragon)
-                    else if (roomID == 9) {
-                        blocks[i][j].addItem(new Item(ItemType.GOLD));
-                        blocks[i][j].addItem(new Item(ItemType.GOLD));
-                        blocks[i][j].addItem(new Item(ItemType.GOLD));
-                        blocks[i][j].addEnemy(enemies.get(10), i, j);
+
+                    // ID = 2 --> goblin (maybe another type too?)
+                    else if (corridorID == 2) {
+                        Enemy goblin = new Enemy(4, 1, 2, true, 0, 0, EnemyType.GOBLIN, false,10);
+                        enemies.add(goblin);
+                        blocks[i][j].addEnemy(goblin, i, j);
+
+                        // 100% chance of items
+                        if (itemCounter < 14) {
+                            blocks[i][j].addItem(items.get(itemCounter));
+                            itemCounter++;
+
+                            // if did not have any items, add extra
+                            if (!blocks[i][j].hasItems()) {
+                                blocks[i][j].addItem(new Item(ItemType.HEALING_POTION));
+                            }
+                        }
                     }
+
+                    // ID = 3 --> orc (maybe another type too?)
+                    else if (corridorID == 3) {
+                        Enemy orc = new Enemy(8, 2, 4, true, 0, 0, EnemyType.ORC, false,14);
+                        enemies.add(orc);
+                        blocks[i][j].addEnemy(orc, i, j);
+
+                        // 100% chance of items
+                        if (itemCounter < 14) {
+                            blocks[i][j].addItem(items.get(itemCounter));
+                            itemCounter++;
+
+                            // if did not have any items, add extra
+                            if (!blocks[i][j].hasItems()) {
+                                blocks[i][j].addItem(new Item(ItemType.MANA_POTION));
+                                blocks[i][j].addItem(new Item(ItemType.HEALING_SPELL));
+                            }
+                        }
+                    }
+                    // ID = 4 --> cave troll (maybe another type too?)
+                    else if (corridorID == 4) {
+                        Enemy troll = new Enemy(14, 4, 7, true, 0, 0, EnemyType.CAVE_TROLL, false,20);
+                        enemies.add(troll);
+                        blocks[i][j].addEnemy(troll, i, j);
+
+                        // 100% chance of items
+                        if (itemCounter < 14) {
+                            blocks[i][j].addItem(items.get(itemCounter));
+                            itemCounter++;
+
+                            // if did not have any items, add extra
+                            if (!blocks[i][j].hasItems()) {
+                                blocks[i][j].addItem(new Item(ItemType.MANA_POTION));
+                                blocks[i][j].addItem(new Item(ItemType.LIGHTNING_BOLT));
+                            }
+                        }
+                    }
+                    else if (corridorID == 5) {
+                        Enemy dragon = new Enemy(20, 6, 10, true, 0, 0, EnemyType.DRAGON, false,50);
+                        enemies.add(dragon);
+                        blocks[i][j].addEnemy(dragon, i, j);
+
+                        // A DOOR TO A NEXT LEVEL--?
+
+
+                    }
+
                 }
             }
         }
@@ -379,10 +360,13 @@ public class GameLogic {
                         blocks[currentX][currentY].getItems().get(0).toString() +
                         " lying on the corridor floor.");
             }
-            else if (blocks[currentX][currentY].isRoom()) {
-                feedback.append("\nYou see " +
-                        blocks[currentX][currentY].getItems().get(0).toString() +
-                        " in the room corner.");
+        }
+
+        if (player.isPoisoned() && turns % 10 == 0) {
+            feedback.append("\nPoison takes effect! You lose 1 HP. Better find a cure quickly!");
+            player.setHP(player.getHP() - 1);
+            if (!player.isAlive()) {
+                setGameOver();
             }
         }
 
@@ -403,29 +387,22 @@ public class GameLogic {
         }
 
         else if (blocks[x][y].isPlayerStart() && blocks[x][y].hasItems()) {
-            feedback.append("This is your starting point. There is a corridor to the east.\nYou see " +
-                    blocks[x][y].getItems().get(0).toString() +
-                    " lying on the corridor floor.");
+            feedback.append("This is your starting point. There is a corridor to the east.\n");
+            feedback.append("You see following items on the floor:\n");
+            for (Item e: blocks[x][y].getItems()) {
+                feedback.append(e.toString() + "\n");
+            }
         }
 
         else if (blocks[x][y].isCorridor() && !blocks[x][y].hasItems()) {
             feedback.append("You see a corridor.");
         }
 
-        else if (blocks[x][y].isRoom() && !blocks[x][y].hasItems()) {
-            feedback.append("You are in a room.");
-        }
-
         else if (blocks[x][y].isCorridor() && blocks[x][y].hasItems()) {
-            feedback.append("You see " +
-                    blocks[x][y].getItems().get(0).toString() +
-                    " lying on the corridor floor.");
-        }
-
-        else if (blocks[x][y].isRoom() && blocks[x][y].hasItems()) {
-            feedback.append("You see " +
-                    blocks[x][y].getItems().get(0).toString() +
-                    " in the room corner.");
+            feedback.append("You see following items on the floor:\n");
+            for (Item e: blocks[x][y].getItems()) {
+                feedback.append(e.toString() + "\n");
+            }
         }
 
         return feedback.toString();
@@ -466,6 +443,7 @@ public class GameLogic {
         }
         else if (player.getLevel() >= 5) {
             feedback.append("\nMaster, I salute thee!");
+
         }
 
         return feedback.toString();
