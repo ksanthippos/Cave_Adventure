@@ -59,6 +59,7 @@ public class AdventureApp extends Application {
         gameView.setCenter(control.gameRoot());
         Scene scene = new Scene(gameView);
         stage.setScene(scene);
+        stage.setTitle("Cave Adventure 1.0");
         stage.show();
 
     }
