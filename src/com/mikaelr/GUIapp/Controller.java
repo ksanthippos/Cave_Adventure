@@ -74,7 +74,7 @@ public class Controller {
         // map components
         this.tileMap = new GridPane();
         this.output = new TextArea();
-        this.tileSize = 24;
+        this.tileSize = 32;
 
         // map assets
         this.wall = new Image("com/mikaelr/assets/map/wall.png");
@@ -172,7 +172,7 @@ public class Controller {
         infoWeapon = new Label("(none)");
         infoArmor = new Label("(none)");
         inventoryList = new ChoiceBox<>();
-        inventoryList.setPrefWidth(100);
+        inventoryList.setPrefWidth(150);
 
         listView.add(lblInv, 0, 0, 1,1);
         listView.add(inventoryList, 1, 0, 1,1);
@@ -197,10 +197,10 @@ public class Controller {
         south = new Button("South");
         east = new Button("East");
         west = new Button("West");
-        north.setPrefSize(50, 30);
-        south.setPrefSize(50, 30);
-        east.setPrefSize(50, 30);
-        west.setPrefSize(50, 30);
+        north.setPrefSize(70, 30);
+        south.setPrefSize(70, 30);
+        east.setPrefSize(70, 30);
+        west.setPrefSize(70, 30);
         moveControls.add(west, 0, 1, 1, 1);
         moveControls.add(north, 1, 0, 1, 1);
         moveControls.add(south, 1, 2, 1, 1);
@@ -213,9 +213,9 @@ public class Controller {
         fight = new Button("Fight");
         flee = new Button("Flee");
         look = new Button("Look");
-        fight.setPrefSize(50, 30);
-        flee.setPrefSize(50,30);
-        look.setPrefSize(50,30);
+        fight.setPrefSize(70, 30);
+        flee.setPrefSize(70,30);
+        look.setPrefSize(70,30);
         actionControls1.getChildren().addAll(fight, flee, look);
         actionControls1.setSpacing(15);
         actionControls1.setPadding(new Insets(10));
@@ -224,9 +224,9 @@ public class Controller {
         use = new Button("Use");
         take = new Button("Take");
         equip = new Button("Equip");
-        use.setPrefSize(50, 30);
-        take.setPrefSize(50, 30);
-        equip.setPrefSize(50, 30);
+        use.setPrefSize(70, 30);
+        take.setPrefSize(70, 30);
+        equip.setPrefSize(70, 30);
         actionControls2.getChildren().addAll(take, use, equip);
         actionControls2.setPrefSize(100, 30);
         actionControls2.setSpacing(15);
@@ -235,6 +235,7 @@ public class Controller {
         UIBottom.getChildren().addAll(moveControls, actionControls1, actionControls2);
         UIBottom.setSpacing(15);
         UIBottom.setPadding(new Insets(15));
+        //UIBottom.setPrefWidth(600);
 
         // whole UI (top + bottom)
         VBox UIwhole = new VBox();
@@ -244,7 +245,7 @@ public class Controller {
 
         // bottom view (text output)
         BorderPane bottomView = new BorderPane();
-        output.setStyle("-fx-control-inner-background:#000000; -fx-font-family: Consolas; -fx-font-size: 12; -fx-text-fill: yellow; ");
+        output.setStyle("-fx-control-inner-background:#000000; -fx-font-family: Consolas; -fx-font-size: 14; -fx-text-fill: yellow; ");
         output.setPrefSize(500, 300);
         output.setEditable(false);
         output.setFocusTraversable(false);
@@ -260,7 +261,7 @@ public class Controller {
         VBox root = new VBox();
         root.getChildren().addAll(topView, bottomView);
         root.setStyle("-fx-background-color: #CBBFBF");
-        root.setPrefSize(900, 600);
+        root.setPrefSize(1200, 800);
 
         // update everything
         updateMap();
